@@ -1,0 +1,26 @@
+healthcare_fraud_detection:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: transform_role
+      database: healthcare_claims
+      warehouse: transform_wh
+      schema: fraud_detection
+      threads: 4
+      query_tag: dbt
+    
+    prod:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: transform_role
+      database: healthcare_claims
+      warehouse: transform_wh
+      schema: fraud_detection_prod
+      threads: 8
+      query_tag: dbt

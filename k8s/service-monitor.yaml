@@ -1,0 +1,37 @@
+# Prometheus ServiceMonitor for Kubernetes
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: fraud-detection-api-metrics
+  namespace: healthcare-fraud
+  labels:
+    app: fraud-detection-api
+spec:
+  ports:
+  - name: metrics
+    port: 8000
+    targetPort: 8000
+  selector:
+    app: fraud-detection-api
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: fraud-detection-api
+  namespace: healthcare-fraud
+  labels:
+    app: fraud-detection-api
+spec:
+  selector:
+    matchLabels:
+      app: fraud-detection-api
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+    - healthcare-fraud

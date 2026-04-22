@@ -1,0 +1,140 @@
+version: 2
+
+models:
+  - name: stg_claims
+    description: "Staging table for raw healthcare claims data"
+    columns:
+      - name: claim_id
+        description: "Unique identifier for the claim"
+        tests:
+          - unique
+          - not_null
+      - name: patient_id
+        description: "Unique identifier for the patient"
+      - name: provider_id
+        description: "Unique identifier for the healthcare provider"
+      - name: service_date
+        description: "Date when the service was provided"
+      - name: claim_amount
+        description: "Total amount claimed for the services"
+      - name: service_count
+        description: "Number of services included in the claim"
+      - name: patient_age
+        description: "Age of the patient at service date"
+      - name: provider_claim_frequency
+        description: "Provider's historical claim frequency"
+      - name: diagnosis_code_count
+        description: "Number of diagnosis codes on the claim"
+      - name: procedure_code_count
+        description: "Number of procedure codes on the claim"
+      - name: provider_type
+        description: "Type of provider (Hospital, Clinic, Individual, etc.)"
+      - name: specialty
+        description: "Medical specialty of the provider"
+      - name: place_of_service
+        description: "Location where service was provided"
+      - name: diagnosis_codes
+        description: "Comma-separated list of ICD-10 diagnosis codes"
+      - name: procedure_codes
+        description: "Comma-separated list of CPT procedure codes"
+
+  - name: fact_claims_enriched
+    description: "Enriched claims fact table with engineered features for fraud detection"
+    columns:
+      - name: claim_id
+        description: "Unique identifier for the claim"
+        tests:
+          - unique
+          - not_null
+      - name: amount_per_service
+        description: "Average amount per service (claim_amount / service_count)"
+      - name: provider_avg_amount
+        description: "Provider's average claim amount"
+      - name: amount_vs_provider_avg
+        description: "Deviation from provider's average"
+      - name: amount_z_score
+        description: "Z-score of claim amount relative to provider's distribution"
+      - name: claim_frequency_ratio
+        description: "Normalized provider claim frequency"
+      - name: diagnosis_per_service
+        description: "Diagnosis codes per service ratio"
+      - name: procedure_per_service
+        description: "Procedure codes per service ratio"
+      - name: high_amount_flag
+        description: "Flag for claims above $5,000"
+      - name: high_service_flag
+        description: "Flag for claims with more than 10 services"
+      - name: high_diagnosis_flag
+        description: "Flag for claims with more than 5 diagnosis codes"
+      - name: amount_vs_age
+        description: "Claim amount normalized by patient age"
+
+  - name: dim_providers
+    description: "Provider dimension with risk metrics and performance indicators"
+    columns:
+      - name: provider_id
+        description: "Unique identifier for the provider"
+        tests:
+          - unique
+          - not_null
+      - name: provider_type
+        description: "Type of provider"
+      - name: specialty
+        description: "Medical specialty"
+      - name: total_claims
+        description: "Total number of claims by provider"
+      - name: total_claim_amount
+        description: "Sum of all claim amounts"
+      - name: avg_claim_amount
+        description: "Average claim amount"
+      - name: stddev_claim_amount
+        description: "Standard deviation of claim amounts"
+      - name: avg_service_count
+        description: "Average number of services per claim"
+      - name: unique_patients
+        description: "Number of unique patients"
+      - name: high_value_claims
+        description: "Count of claims above $5,000"
+      - name: high_service_claims
+        description: "Count of claims with more than 10 services"
+      - name: provider_risk_score
+        description: "Computed risk score (0-100)"
+      - name: risk_category
+        description: "Risk category: Critical, High, Medium, Low"
+
+  - name: fraud_detection_summary
+    description: "Daily summary metrics for fraud detection monitoring"
+    columns:
+      - name: report_date
+        description: "Date of the report"
+      - name: total_claims
+        description: "Total number of claims processed"
+      - name: total_amount
+        description: "Total claim amount for the day"
+      - name: avg_claim_amount
+        description: "Average claim amount"
+      - name: statistical_outliers
+        description: "Count of statistical outliers (Z-score > 3)"
+      - name: high_value_claims
+        description: "Count of high-value claims"
+      - name: high_service_claims
+        description: "Count of high-service claims"
+      - name: active_providers
+        description: "Number of active providers"
+      - name: unique_patients
+        description: "Number of unique patients"
+      - name: outlier_rate
+        description: "Percentage of claims that are outliers"
+
+sources:
+  - name: raw
+    description: "Raw claims data from source system"
+    tables:
+      - name: claims
+        description: "Raw healthcare claims table"
+        columns:
+          - name: claim_id
+            description: "Unique claim identifier"
+            tests:
+              - unique
+              - not_null
